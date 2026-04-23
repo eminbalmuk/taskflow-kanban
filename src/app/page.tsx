@@ -6,6 +6,7 @@ import Board from '@/components/kanban/Board'
 import Loading from '@/components/kanban/Loading'
 import styles from './page.module.css'
 import { LayoutGrid, CheckSquare, Settings, LogOut, Search, Bell } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
 
 export default function Home() {
   const { setActiveBoard, activeBoard, loading, searchQuery, setSearchQuery } = useKanbanStore()
@@ -13,8 +14,10 @@ export default function Home() {
   useEffect(() => {
     const init = async () => {
       const res = await fetch('/api/setup')
-      const data = await res.json()
-      setActiveBoard(data)
+      if (res.ok) {
+        const data = await res.json()
+        setActiveBoard(data)
+      }
     }
     init()
   }, [setActiveBoard])
@@ -55,7 +58,7 @@ export default function Home() {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <button className={styles.navItem}>
+          <button className={styles.navItem} onClick={() => signOut()}>
             <LogOut size={20} />
             <span>Çıkış Yap</span>
           </button>

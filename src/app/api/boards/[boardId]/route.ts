@@ -3,11 +3,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: Request,
-  { params }: { params: { boardId: string } }
+  { params }: { params: Promise<{ boardId: string }> }
 ) {
-  const { boardId } = params
-
   try {
+    const { boardId } = await params
+
     const board = await prisma.board.findUnique({
       where: { id: boardId },
       include: {

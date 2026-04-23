@@ -1,68 +1,50 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/auth'
 
 export async function GET() {
+  const session = await auth()
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
-    // Board var mı diye kontrol
     let board = await prisma.board.findFirst({
-      include: { columns: { include: { cards: true } } }
+      where: { userId: session.user.id },
+      include: { 
+        columns: { 
+          orderBy: { order: 'asc' },
+          include: { 
+            cards: { orderBy: { order: 'asc' } } 
+          } 
+        } 
+      }
     })
 
     if (!board) {
-      // Default user
-      const user = await prisma.user.create({
-        data: {
-          email: 'demo@taskflow.com',
-          password: 'password123',
-          name: 'Demo User'
-        }
-      })
-
-      // Board
       board = await prisma.board.create({
         data: {
-          title: 'TaskFlow\'a hoşgeldiniz!',
-          userId: user.id,
+          title: 'Yeni Projem',
+          userId: session.user.id,
           columns: {
             create: [
-              {
-                title: 'To Do',
-                order: 0,
-                cards: {
-                  create: [
-                    { title: 'Learn dnd-kit', order: 0 },
-                    { title: 'Master Framer Motion', order: 1 },
-                  ]
-                }
-              },
-              {
-                title: 'In Progress',
-                order: 1,
-                cards: {
-                  create: [
-                    { title: 'Building Kanban Board', order: 0 },
-                  ]
-                }
-              },
-              {
-                title: 'Done',
-                order: 2,
-                cards: {
-                  create: [
-                    { title: 'Project Setup', order: 0 },
-                  ]
-                }
-              }
+              { title: 'Yapılacaklar', order: 0, color: '#f3f0ff' },
+              { title: 'Devam Edenler', order: 1, color: '#e0f2fe' },
+              { title: 'Tamamlananlar', order: 2, color: '#dcfce7' }
             ]
           }
         },
-        include: { columns: { include: { cards: true } } }
+        include: { 
+          columns: { 
+            include: { cards: true } 
+          } 
+        }
       })
     }
 
     return NextResponse.json(board)
   } catch (error) {
-    console.error(error)
     return NextResponse.json({ error: 'Setup failed' }, { status: 500 })
   }
 }

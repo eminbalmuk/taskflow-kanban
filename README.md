@@ -1,1 +1,1 @@
-TaskFlow Canban Board
+TaskFlow Kanban Board
