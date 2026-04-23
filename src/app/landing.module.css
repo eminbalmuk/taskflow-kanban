@@ -1,0 +1,311 @@
+.landing {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.96)),
+    var(--background);
+  overflow-x: hidden;
+}
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: center top;
+  z-index: -3;
+  filter: saturate(1.14) contrast(1.02) brightness(1.04);
+  opacity: 0.98;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(253, 252, 253, 0.12), rgba(253, 252, 253, 0.82)),
+    radial-gradient(circle at top left, rgba(142, 148, 242, 0.18), transparent 42%),
+    radial-gradient(circle at right center, rgba(224, 242, 254, 0.22), transparent 36%);
+}
+
+.heroContent {
+  width: min(760px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.46);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 80px -28px rgba(28, 28, 28, 0.25);
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.heroContent h1 {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.96;
+  color: var(--foreground);
+}
+
+.heroContent p {
+  max-width: 640px;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-weight: 600;
+  line-height: 1.7;
+  color: rgba(28, 28, 28, 0.82);
+}
+
+.ctaButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 28px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, var(--primary), #b0b5ff);
+  color: white;
+  box-shadow: 0 16px 36px -14px rgba(142, 148, 242, 0.65);
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px -16px rgba(142, 148, 242, 0.78);
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  color: var(--foreground);
+}
+
+.secondaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -18px rgba(28, 28, 28, 0.26);
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 120px;
+  padding: 112px 24px;
+}
+
+.featureRow {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.featureRowReverse {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+}
+
+.featureRowReverse .featureText {
+  order: 2;
+}
+
+.featureRowReverse .featureVisual {
+  order: 1;
+}
+
+.featureText {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.featureEyebrow {
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.featureText h2 {
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--foreground);
+}
+
+.featureText p {
+  font-size: 1.04rem;
+  line-height: 1.8;
+  color: var(--muted-foreground);
+}
+
+.featureVisual {
+  position: relative;
+  min-height: 420px;
+}
+
+.featureGlow {
+  position: absolute;
+  inset: 30px;
+  border-radius: 36px;
+  opacity: 0.92;
+}
+
+.accentLilac {
+  background: linear-gradient(135deg, rgba(142, 148, 242, 0.18), rgba(176, 181, 255, 0.55));
+}
+
+.accentBlue {
+  background: linear-gradient(135deg, rgba(132, 220, 255, 0.18), rgba(224, 242, 254, 0.72));
+}
+
+.accentMint {
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.16), rgba(220, 252, 231, 0.72));
+}
+
+.featureShot {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 30px 60px -28px rgba(28, 28, 28, 0.28);
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(10px);
+}
+
+.featureImage {
+  object-fit: cover;
+  object-position: center top;
+}
+
+.finalCta {
+  width: min(980px, calc(100% - 48px));
+  margin: 0 auto 96px;
+  padding: 56px 32px;
+  border-radius: 36px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(142, 148, 242, 0.18), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 30px 70px -38px rgba(28, 28, 28, 0.28);
+}
+
+.finalCta h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+}
+
+.finalCta p {
+  max-width: 620px;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 1024px) {
+  .featureRow,
+  .featureRowReverse {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .featureRowReverse .featureText,
+  .featureRowReverse .featureVisual {
+    order: initial;
+  }
+
+  .featureVisual {
+    min-height: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 32px 16px;
+  }
+
+  .heroContent {
+    padding: 28px 20px;
+    border-radius: 24px;
+  }
+
+  .ctaButtons {
+    width: 100%;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+  }
+
+  .features {
+    gap: 72px;
+    padding: 72px 16px;
+  }
+
+  .featureVisual {
+    min-height: 260px;
+  }
+
+  .featureGlow {
+    inset: 18px;
+  }
+
+  .finalCta {
+    width: calc(100% - 32px);
+    margin-bottom: 64px;
+    padding: 40px 20px;
+    border-radius: 24px;
+  }
+}

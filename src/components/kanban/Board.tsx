@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -15,33 +15,25 @@ import {
   defaultDropAnimationSideEffects,
 } from '@dnd-kit/core'
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Column as ColumnType, Card as CardType, useKanbanStore } from '@/lib/kanban-store'
+import { createPortal } from 'react-dom'
+import { useKanbanStore } from '@/lib/kanban-store'
 import Column from './Column'
 import Card from './Card'
 import styles from './Board.module.css'
-import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Board() {
   const { activeBoard, moveCard, moveColumn, addColumn } = useKanbanStore()
+  const boardColumns = activeBoard?.columns ?? []
+  const boardViewportRef = useRef<HTMLDivElement>(null)
+
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<'column' | 'card' | null>(null)
-  
   const [isAddingColumn, setIsAddingColumn] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
-
-  const handleAddColumn = async () => {
-    if (!newColumnTitle.trim() || !activeBoard) return
-    await addColumn(activeBoard.id, newColumnTitle)
-    setNewColumnTitle('')
-    setIsAddingColumn(false)
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -54,148 +46,200 @@ export default function Board() {
     })
   )
 
-  if (!activeBoard) {
-    return <div className={styles.empty}>Başlamak için bir pano seçin</div>
+  useEffect(() => {
+    const viewport = boardViewportRef.current
+    if (!viewport) return
+
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            void viewport.offsetWidth
+          })
+        : null
+
+    resizeObserver?.observe(viewport)
+
+    const content = viewport.firstElementChild
+    if (content instanceof HTMLElement) {
+      resizeObserver?.observe(content)
+    }
+
+    return () => {
+      resizeObserver?.disconnect()
+    }
+  }, [activeBoard, isAddingColumn])
+
+  const handleAddColumn = async () => {
+    if (!newColumnTitle.trim() || !activeBoard) return
+
+    await addColumn(activeBoard.id, newColumnTitle.trim())
+    setNewColumnTitle('')
+    setIsAddingColumn(false)
   }
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
     setActiveId(active.id as string)
-    setActiveType(active.data.current?.type)
+    setActiveType(active.data.current?.type ?? null)
   }
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event
+
     if (!over) return
+    if (active.id === over.id) return
 
-    const activeId = active.id
-    const overId = over.id
+    const isActiveCard = active.data.current?.type === 'card'
+    const isOverCard = over.data.current?.type === 'card'
+    const isOverColumn = over.data.current?.type === 'column'
 
-    if (activeId === overId) return
-
-    const isActiveACard = active.data.current?.type === 'card'
-    const isOverACard = over.data.current?.type === 'card'
-    const isOverAColumn = over.data.current?.type === 'column'
-
-    if (!isActiveACard) return
-
-    if (isActiveACard && (isOverACard || isOverAColumn)) {
-      const activeColId = active.data.current?.columnId
-      let overColId = isOverAColumn ? over.id as string : over.data.current?.columnId
-
-      if (activeColId !== overColId) {
-        // Preview logic can be added here if needed
-      }
-    }
+    if (!isActiveCard) return
+    if (!(isOverCard || isOverColumn)) return
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+
     setActiveId(null)
     setActiveType(null)
 
     if (!over || !activeBoard) return
 
-    const activeId = active.id as string
-    const overId = over.id as string
+    const draggedId = active.id as string
+    const targetId = over.id as string
 
-    if (activeId === overId) return
+    if (draggedId === targetId) return
 
     const type = active.data.current?.type
 
     if (type === 'column') {
-      let overColId = overId
-      // Eğer bir kartın üzerine bırakıldıysa, o kartın sütununu bul
+      let overColumnId = targetId
+
       if (over.data.current?.type === 'card') {
-        overColId = over.data.current.columnId
+        overColumnId = over.data.current.columnId
       }
 
-      const activeIndex = activeBoard.columns.findIndex((col) => col.id === activeId)
-      const overIndex = activeBoard.columns.findIndex((col) => col.id === overColId)
+      const activeIndex = boardColumns.findIndex((column) => column.id === draggedId)
+      const overIndex = boardColumns.findIndex((column) => column.id === overColumnId)
 
       if (activeIndex !== -1 && overIndex !== -1) {
-        moveColumn(activeBoard.id, activeId, overIndex)
+        moveColumn(activeBoard.id, draggedId, overIndex)
       }
-    } else if (type === 'card') {
-      const activeColId = active.data.current?.columnId
-      let overColId = over.data.current?.type === 'column' ? over.id as string : over.data.current?.columnId
-      
-      const overCol = activeBoard.columns.find(c => c.id === overColId)
-      if (!overCol) return
 
-      let overIndex = overCol.cards.findIndex(c => c.id === overId)
-      if (overIndex === -1) overIndex = overCol.cards.length
+      return
+    }
 
-      moveCard(activeId, activeColId, overColId, overIndex)
+    if (type === 'card') {
+      const activeColumnId = active.data.current?.columnId
+      const overColumnId =
+        over.data.current?.type === 'column'
+          ? (over.id as string)
+          : over.data.current?.columnId
+
+      const overColumn = boardColumns.find((column) => column.id === overColumnId)
+      if (!overColumn) return
+
+      let overIndex = overColumn.cards.findIndex((card) => card.id === targetId)
+      if (overIndex === -1) {
+        overIndex = overColumn.cards.length
+      }
+
+      moveCard(draggedId, activeColumnId, overColumnId, overIndex)
     }
   }
 
-  return (
-    <div className={styles.boardContainer}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div className={styles.columnsList}>
-          <SortableContext 
-            items={activeBoard.columns?.map(c => c.id) || []} 
-            strategy={horizontalListSortingStrategy}
-          >
-            <AnimatePresence>
-              {activeBoard.columns?.map((col) => (
-                <Column key={col.id} column={col} />
-              ))}
-            </AnimatePresence>
-          </SortableContext>
-          
-          {isAddingColumn ? (
-            <div className={styles.addColumnInputContainer}>
-              <input
-                autoFocus
-                className={styles.addColumnInput}
-                placeholder="Sütun başlığı..."
-                value={newColumnTitle}
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddColumn()
-                  if (e.key === 'Escape') setIsAddingColumn(false)
-                }}
-              />
-              <div className={styles.addColumnActions}>
-                <button className={styles.confirmAddColBtn} onClick={handleAddColumn}>Sütun Ekle</button>
-                <button className={styles.cancelAddBtn} onClick={() => setIsAddingColumn(false)}>İptal</button>
-              </div>
-            </div>
-          ) : (
-            <button className={styles.addColumnBtn} onClick={() => setIsAddingColumn(true)}>
-              + Sütun Ekle
-            </button>
-          )}
-        </div>
+  const activeCard =
+    activeId && activeType === 'card'
+      ? boardColumns.flatMap((column) => column.cards).find((card) => card.id === activeId)
+      : null
 
-        {typeof document !== 'undefined' && createPortal(
-          <DragOverlay dropAnimation={{
-            sideEffects: defaultDropAnimationSideEffects({
-              styles: {
-                active: {
-                  opacity: '0.5',
-                },
-              },
-            }),
-          }}>
-            {activeId && activeType === 'column' && activeBoard.columns ? (
-              <Column column={activeBoard.columns.find(c => c.id === activeId)!} isOverlay />
-            ) : null}
-            {activeId && activeType === 'card' && activeBoard.columns ? (
-              <Card card={activeBoard.columns.flatMap(c => c.cards).find(c => c.id === activeId)!} isOverlay />
-            ) : null}
-          </DragOverlay>,
-          document.body
-        )}
-      </DndContext>
+  const activeColumn =
+    activeId && activeType === 'column'
+      ? boardColumns.find((column) => column.id === activeId)
+      : null
+
+  if (!activeBoard) {
+    return <div className={styles.empty}>Baslamak icin bir pano secin.</div>
+  }
+
+  return (
+    <div className={styles.boardShell}>
+      <div ref={boardViewportRef} className={styles.boardContainer}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div className={styles.columnsList}>
+            <SortableContext
+              items={boardColumns.map((column) => column.id)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {boardColumns.map((column) => (
+                <Column key={column.id} column={column} />
+              ))}
+            </SortableContext>
+
+            {isAddingColumn ? (
+              <div className={styles.addColumnInputContainer}>
+                <input
+                  autoFocus
+                  className={styles.addColumnInput}
+                  placeholder="Sutun basligi..."
+                  value={newColumnTitle}
+                  onChange={(event) => setNewColumnTitle(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') handleAddColumn()
+                    if (event.key === 'Escape') {
+                      setIsAddingColumn(false)
+                      setNewColumnTitle('')
+                    }
+                  }}
+                />
+                <div className={styles.addColumnActions}>
+                  <button className={styles.confirmAddColBtn} onClick={handleAddColumn}>
+                    Sutun ekle
+                  </button>
+                  <button
+                    className={styles.cancelAddBtn}
+                    onClick={() => {
+                      setIsAddingColumn(false)
+                      setNewColumnTitle('')
+                    }}
+                  >
+                    Iptal
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button className={styles.addColumnBtn} onClick={() => setIsAddingColumn(true)}>
+                + Sutun ekle
+              </button>
+            )}
+          </div>
+
+          {typeof document !== 'undefined' &&
+            createPortal(
+              <DragOverlay
+                dropAnimation={{
+                  sideEffects: defaultDropAnimationSideEffects({
+                    styles: {
+                      active: {
+                        opacity: '0.5',
+                      },
+                    },
+                  }),
+                }}
+              >
+                {activeColumn ? <Column column={activeColumn} isOverlay /> : null}
+                {activeCard ? <Card card={activeCard} isOverlay /> : null}
+              </DragOverlay>,
+              document.body
+            )}
+        </DndContext>
+      </div>
     </div>
   )
 }

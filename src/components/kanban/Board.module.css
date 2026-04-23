@@ -1,154 +1,233 @@
-.boardContainer {
+.boardShell {
+  height: 100%;
   display: flex;
-  height: calc(100vh - 80px);
-  padding: 32px;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.boardContainer {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 32px 4px;
   overflow-x: auto;
-  gap: 24px;
-  scroll-behavior: smooth;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: auto;
+  scrollbar-color: #8f86ff rgba(221, 216, 255, 0.62);
+}
+
+.boardContainer::-webkit-scrollbar {
+  height: 16px;
+}
+
+.boardContainer::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(234, 231, 255, 0.92), rgba(224, 219, 255, 0.86));
+  box-shadow:
+    inset 0 0 0 1px rgba(190, 184, 255, 0.3),
+    inset 0 2px 6px rgba(255, 255, 255, 0.65);
+}
+
+.boardContainer::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(171, 160, 255, 0.98), rgba(129, 117, 247, 0.96)) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(204, 197, 255, 0.4)) border-box;
+  box-shadow: 0 8px 18px -12px rgba(110, 101, 219, 0.92);
+}
+
+.boardContainer::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(180deg, rgba(160, 149, 255, 0.99), rgba(118, 106, 240, 0.98)) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(204, 197, 255, 0.5)) border-box;
 }
 
 .columnsList {
   display: flex;
-  gap: 24px;
-  height: 100%;
   align-items: flex-start;
+  gap: 24px;
+  min-width: 100%;
+  width: max-content;
+  height: 100%;
+  padding-bottom: 8px;
+}
+
+.empty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  color: var(--muted-foreground);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.column,
+.addColumnInputContainer,
+.addColumnBtn,
+.columnSkeleton {
+  width: 340px;
+  min-width: 340px;
 }
 
 .column {
-  width: 340px;
-  min-width: 340px;
   max-height: 100%;
-  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
-  transition: background-color 0.3s ease;
+  border-radius: var(--radius);
+  border: 1px solid rgba(237, 239, 247, 0.96);
+  box-shadow: 0 24px 42px -34px rgba(66, 61, 117, 0.34);
   position: relative;
+  overflow: hidden;
+}
+
+.columnOverlay {
+  transform: rotate(1.5deg);
+  box-shadow: 0 22px 44px -18px rgba(15, 23, 42, 0.32);
+}
+
+.columnDragging {
+  opacity: 0.4;
+  border-style: dashed;
 }
 
 .columnHeader {
-  padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 12px;
+  padding: 20px 20px 16px;
   cursor: grab;
-  min-height: 64px;
+}
+
+.columnTitleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.columnTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #1d1d2d;
+  word-break: break-word;
+}
+
+.columnCount {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(28, 28, 28, 0.54);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.columnTitleInput {
+  width: 100%;
+  min-height: 52px;
+  resize: none;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--foreground);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(142, 148, 242, 0.3);
+  background: rgba(255, 255, 255, 0.88);
+  outline: none;
+}
+
+.columnTitleInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(142, 148, 242, 0.12);
 }
 
 .columnHeaderActions {
   display: flex;
+  align-items: center;
   gap: 6px;
-  z-index: 10;
   opacity: 0;
   transition: opacity 0.2s ease;
+  position: relative;
 }
 
 .column:hover .columnHeaderActions {
   opacity: 1;
 }
 
-.columnTitleContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-right: 12px;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-.columnTitle {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--foreground);
-  line-height: 1.4;
-  white-space: pre-wrap;
-}
-
-.columnTitleInput {
-  font-size: 1.1rem;
-  font-weight: 800;
-  background: white;
-  border: 2px solid var(--primary);
-  border-radius: 8px;
-  padding: 4px 8px;
-  width: 100%;
-  color: var(--foreground);
-  font-family: inherit;
-  resize: none;
-  overflow: hidden;
-}
-
 .cardsList {
-  padding: 4px 16px 12px;
+  flex: 1;
+  min-height: 0;
+  padding: 4px 16px 14px;
   display: flex;
   flex-direction: column;
   gap: 14px;
   overflow-y: auto;
-  flex: 1;
 }
 
-/* Card Styling */
 .card {
-  padding: 16px;
-  border-radius: calc(var(--radius) - 0.5rem);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-  border: 1px solid var(--border);
-  cursor: grab;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  height: auto;
-  min-height: 50px;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(239, 241, 247, 0.98);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 32px -30px rgba(80, 72, 145, 0.34);
+  cursor: grab;
+  position: relative;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 24px 36px -28px rgba(80, 72, 145, 0.42);
+  border-color: rgba(142, 148, 242, 0.18);
+}
+
+.cardOverlay {
+  transform: rotate(1deg);
+}
+
+.cardDragging {
+  opacity: 0.36;
+  border-style: dashed;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
+  gap: 16px;
 }
 
 .cardTitleContainer {
   flex: 1;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .cardTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.5;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  font-weight: 700;
   color: var(--card-foreground);
   white-space: pre-wrap;
-}
-
-.cardTitleInput {
-  font-size: 1rem;
-  font-weight: 600;
-  width: 100%;
-  background: white;
-  border: 2px solid var(--primary);
-  border-radius: 8px;
-  padding: 6px 10px;
-  color: var(--card-foreground);
-  font-family: inherit;
-  resize: none;
-  overflow: hidden;
-  line-height: 1.5;
+  word-break: break-word;
 }
 
 .cardActions {
   display: flex;
-  gap: 4px;
-  position: absolute;
-  top: 8px;
-  right: 8px;
+  align-items: center;
+  gap: 6px;
   opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 10;
+  transition: opacity 0.2s ease;
+  position: relative;
 }
 
 .card:hover .cardActions {
@@ -156,215 +235,396 @@
 }
 
 .iconBtn {
-  width: 28px;
-  height: 28px;
-  display: flex;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 9px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(255, 255, 255, 0.85);
   color: var(--muted-foreground);
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid var(--border);
-  transition: all 0.2s;
   cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .iconBtn:hover {
-  background-color: var(--accent);
-  color: var(--primary);
-  transform: scale(1.1);
+  transform: translateY(-1px);
+  background-color: white;
+  border-color: rgba(142, 148, 242, 0.32);
+  color: var(--foreground);
 }
 
 .deleteBtn:hover {
-  background-color: var(--destructive) !important;
-  color: white !important;
-  border-color: var(--destructive);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.24);
+  background-color: rgba(254, 242, 242, 0.96);
 }
 
-/* Color Pickers */
 .colorPickerContainer {
   position: relative;
 }
 
-.colorMenu, .colorMenuColumn {
+.colorMenu,
+.colorMenuColumn {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   right: 0;
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px;
+  z-index: 20;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  margin-top: 8px;
-  z-index: 50;
+  min-width: 152px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.32);
+}
+
+.colorMenuColumn {
+  min-width: 124px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .colorDot {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  display: flex;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 12px -10px rgba(15, 23, 42, 0.32);
   cursor: pointer;
+  color: #1c1c1c;
 }
 
-/* Form Elements */
-.addColumnBtn {
-  min-width: 340px;
-  height: 60px;
-  border-radius: var(--radius);
-  background-color: var(--secondary);
-  color: var(--primary);
-  border: 2px dashed var(--primary);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-
-.addColumnBtn:hover {
-  background-color: var(--accent);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(142, 148, 242, 0.4);
-}
-
-.addCardBtn {
-  margin: 8px 16px 16px;
-  padding: 12px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--primary);
-  font-weight: 700;
-  background-color: rgba(142, 148, 242, 0.05);
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.addCardBtn:hover {
-  background-color: rgba(142, 148, 242, 0.1);
-}
-
-.addCardInputContainer {
+.editCardForm {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  background-color: var(--card);
-  border-radius: 12px;
-  border: 2px solid var(--primary);
-  animation: slideIn 0.2s ease-out;
+  gap: 10px;
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+.cardTitleInput,
 .addCardTextarea {
   width: 100%;
-  padding: 8px;
+  min-height: 74px;
+  resize: none;
+  font: inherit;
+  color: var(--foreground);
+  border: 1px solid rgba(142, 148, 242, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 12px 14px;
+  outline: none;
+  line-height: 1.5;
+}
+
+.cardTitleInput:focus,
+.addCardTextarea:focus,
+.addColumnInput:focus,
+.assigneeInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(142, 148, 242, 0.12);
+}
+
+.assigneeInputContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(142, 148, 242, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--muted-foreground);
+}
+
+.assigneeField {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.assigneeToken {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 8px 0 10px;
+  border-radius: 999px;
+  background: rgba(142, 148, 242, 0.12);
+  color: #4a46ad;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.assigneeTokenRemove {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+  cursor: pointer;
+}
+
+.dateInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(142, 148, 242, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--muted-foreground);
+}
+
+.assigneeInput {
+  flex: 1;
+  min-width: 100px;
+  border: none;
+  outline: none;
   background: transparent;
   color: var(--foreground);
-  font-size: 1rem;
-  line-height: 1.5;
-  resize: none;
-  min-height: 60px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.dateInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.editActions,
+.addCardActions,
+.addColumnActions {
+  display: flex;
+  gap: 10px;
+}
+
+.saveBtn,
+.confirmAddBtn,
+.confirmAddColBtn {
+  flex: 1;
+  min-height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), #b0b5ff);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 24px -18px rgba(142, 148, 242, 0.62);
+}
+
+.cancelBtn,
+.cancelAddBtn {
+  flex: 1;
+  min-height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addCardInputContainer,
+.addColumnInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(142, 148, 242, 0.2);
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.addColumnInputContainer {
+  align-self: flex-start;
+  background: rgba(243, 240, 255, 0.88);
+}
+
+.addColumnInput {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(142, 148, 242, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--foreground);
+  font-size: 0.96rem;
+  font-weight: 700;
   outline: none;
 }
 
-.addCardActions {
-  display: flex;
-  gap: 12px;
-  padding: 0 4px 4px;
+.addCardBtn,
+.addColumnBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-weight: 800;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.confirmAddBtn, .confirmAddColBtn {
-  flex: 1;
+.addCardBtn {
+  margin: 0 16px 16px;
+  min-height: 48px;
+  border: 1px dashed rgba(142, 148, 242, 0.24);
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--primary);
+}
+
+.addCardBtn:hover,
+.addColumnBtn:hover {
+  transform: translateY(-2px);
+}
+
+.addColumnBtn {
+  min-height: 60px;
+  border: 2px dashed rgba(142, 148, 242, 0.42);
+  background: rgba(243, 240, 255, 0.8);
+  color: var(--primary);
+}
+
+.cardAssignee {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.cardMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.assigneeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 7px 10px 7px 7px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--foreground);
+}
+
+.assigneeAvatar {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
   background: linear-gradient(135deg, var(--primary), #b0b5ff);
   color: white;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.assigneeName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(142, 148, 242, 0.3);
-  cursor: pointer;
 }
 
-.cancelAddBtn {
-  flex: 1;
-  background-color: var(--secondary);
-  color: var(--muted-foreground);
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+.dueDateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(142, 148, 242, 0.08);
+  color: #5c58c8;
+  font-size: 0.76rem;
+  font-weight: 800;
 }
 
-/* Skeletons */
 .columnSkeleton {
-  width: 340px;
-  min-width: 340px;
-  height: 100%;
-  background-color: var(--secondary);
-  border-radius: var(--radius);
-  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(243, 240, 255, 0.76);
+}
+
+.headerSkeleton,
+.cardSkeleton {
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.58));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
 }
 
 .headerSkeleton {
-  height: 28px;
-  width: 140px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 6px;
-  animation: pulse 2s infinite ease-in-out;
+  height: 62px;
 }
 
 .cardSkeleton {
-  height: 100px;
-  background-color: var(--card);
-  border-radius: 12px;
-  animation: pulse 2s infinite ease-in-out;
+  height: 108px;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.5; transform: scale(0.98); }
-  50% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0.5; transform: scale(0.98); }
-}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
 
-.empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--muted-foreground);
-  font-size: 1.1rem;
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 768px) {
   .boardContainer {
-    padding: 16px;
+    padding: 12px 16px 4px;
   }
-  .column {
+
+  .column,
+  .addColumnInputContainer,
+  .addColumnBtn,
+  .columnSkeleton {
     width: 280px;
-    min-width: 280px;
-  }
-  .addColumnBtn {
     min-width: 280px;
   }
 }

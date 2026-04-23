@@ -10,7 +10,12 @@ export async function GET() {
   }
 
   try {
-    let board = await prisma.board.findFirst({
+    let boards = await prisma.board.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: 'asc' },
+    })
+
+    let activeBoard = await prisma.board.findFirst({
       where: { userId: session.user.id },
       include: { 
         columns: { 
@@ -22,10 +27,10 @@ export async function GET() {
       }
     })
 
-    if (!board) {
-      board = await prisma.board.create({
+    if (!activeBoard) {
+      activeBoard = await prisma.board.create({
         data: {
-          title: 'Yeni Projem',
+          title: 'Genel Proje',
           userId: session.user.id,
           columns: {
             create: [
@@ -41,9 +46,10 @@ export async function GET() {
           } 
         }
       })
+      boards = [activeBoard]
     }
 
-    return NextResponse.json(board)
+    return NextResponse.json({ boards, activeBoard })
   } catch (error) {
     return NextResponse.json({ error: 'Setup failed' }, { status: 500 })
   }
