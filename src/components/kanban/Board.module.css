@@ -617,14 +617,87 @@
 
 @media (max-width: 768px) {
   .boardContainer {
-    padding: 12px 16px 4px;
+    padding: 12px 12px 6px;
   }
 
   .column,
   .addColumnInputContainer,
   .addColumnBtn,
   .columnSkeleton {
-    width: 280px;
-    min-width: 280px;
+    width: min(86vw, 360px);
+    min-width: min(86vw, 360px);
+  }
+
+  .columnsList {
+    gap: 14px;
+    padding-bottom: 10px;
+  }
+
+  .columnHeader {
+    padding: 18px 16px 14px;
+  }
+
+  .cardsList {
+    padding: 4px 12px 12px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .cardTitle {
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .addCardBtn {
+    margin: 0 12px 12px;
+  }
+
+  .addCardInputContainer,
+  .addColumnInputContainer {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .boardContainer::-webkit-scrollbar {
+    height: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .boardContainer {
+    padding: 10px 10px 6px;
+  }
+
+  .column,
+  .addColumnInputContainer,
+  .addColumnBtn,
+  .columnSkeleton {
+    width: calc(100vw - 36px);
+    min-width: calc(100vw - 36px);
+  }
+
+  .columnHeader {
+    padding: 16px 14px 12px;
+  }
+
+  .cardsList {
+    padding: 4px 10px 10px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .cardActions {
+    opacity: 1;
+  }
+
+  .assigneeInput {
+    min-width: 80px;
   }
 }

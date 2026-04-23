@@ -196,7 +196,7 @@ export default function Dashboard() {
             <div className={styles.logoIcon}>TF</div>
             <span className={styles.logoText}>TaskFlow</span>
           </div>
-          <p className={styles.sidebarIntro}>Panoları yönet, filtrele ve ekibin dengesini tek ekranda gör.</p>
+          <p className={styles.sidebarIntro}>Panoları yönet, filtrele ve ekibin çalışmasını tek ekranda gör.</p>
         </div>
 
         <nav className={styles.nav}>
