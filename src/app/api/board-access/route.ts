@@ -57,7 +57,7 @@ async function requireOwnerAccess(request: Request) {
   }
 
   return {
-    session,
+    ownerUserId: session.user.id,
     boardId,
   }
 }
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     )
   }
 
-  if (targetUser.id === result.session.user.id) {
+  if (targetUser.id === result.ownerUserId) {
     return NextResponse.json({ error: 'You already own this board' }, { status: 400 })
   }
 
