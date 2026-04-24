@@ -18,7 +18,8 @@ interface ColumnProps {
 const PASTEL_COLUMNS = ['#f3f0ff', '#e0f2fe', '#dcfce7', '#fef9c3', '#fce7f3', '#f1f5f9']
 
 export default function Column({ column, isOverlay = false }: ColumnProps) {
-  const { addCard, deleteColumn, updateColumnColor, updateColumnTitle, searchQuery } = useKanbanStore()
+  const { addCard, deleteColumn, updateColumnColor, updateColumnTitle, searchQuery, activeBoard } = useKanbanStore()
+  const canEdit = activeBoard?.canEdit ?? false
 
   const [isAddingCard, setIsAddingCard] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
@@ -82,7 +83,7 @@ export default function Column({ column, isOverlay = false }: ColumnProps) {
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
-    disabled: isEditing || isOverlay,
+    disabled: !canEdit || isEditing || isOverlay,
     data: {
       type: 'column',
       column,
@@ -148,7 +149,7 @@ export default function Column({ column, isOverlay = false }: ColumnProps) {
           )}
         </div>
 
-        {!isOverlay && (
+        {!isOverlay && canEdit && (
           <div className={styles.columnHeaderActions} onClick={(event) => event.stopPropagation()}>
             {!isEditing && (
               <button className={styles.iconBtn} onClick={() => setIsEditing(true)}>
@@ -201,7 +202,7 @@ export default function Column({ column, isOverlay = false }: ColumnProps) {
           ))}
         </SortableContext>
 
-        {isAddingCard && (
+        {canEdit && isAddingCard && (
           <div className={styles.addCardInputContainer}>
             <textarea
               autoFocus
@@ -287,7 +288,7 @@ export default function Column({ column, isOverlay = false }: ColumnProps) {
         )}
       </div>
 
-      {!isAddingCard && !isOverlay && (
+      {!isAddingCard && !isOverlay && canEdit && (
         <button className={styles.addCardBtn} onClick={() => setIsAddingCard(true)}>
           <Plus size={16} /> Kart ekle
         </button>

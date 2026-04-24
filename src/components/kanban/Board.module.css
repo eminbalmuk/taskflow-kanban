@@ -58,9 +58,49 @@
   display: grid;
   place-items: center;
   padding: 32px;
-  color: var(--muted-foreground);
+}
+
+.emptyCard {
+  width: min(560px, 100%);
+  padding: 40px 36px;
+  border: 1px solid rgba(228, 232, 247, 0.96);
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 245, 255, 0.92)),
+    radial-gradient(circle at top left, rgba(142, 148, 242, 0.12), transparent 34%);
+  box-shadow: 0 28px 56px -42px rgba(87, 79, 155, 0.46);
+  text-align: center;
+}
+
+.emptyEyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(243, 240, 255, 0.94);
+  color: #6a63e6;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.emptyCard h2 {
+  margin-top: 18px;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #1e1d33;
+}
+
+.emptyCard p {
+  margin-top: 12px;
   font-size: 1rem;
-  font-weight: 700;
+  line-height: 1.75;
+  color: rgba(92, 92, 121, 0.86);
 }
 
 .column,
@@ -664,6 +704,19 @@
 
   .boardContainer::-webkit-scrollbar {
     height: 14px;
+  }
+
+  .empty {
+    padding: 18px;
+  }
+
+  .emptyCard {
+    padding: 28px 22px;
+    border-radius: 24px;
+  }
+
+  .emptyCard p {
+    font-size: 0.94rem;
   }
 }
 

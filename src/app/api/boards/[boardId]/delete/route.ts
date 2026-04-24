@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
+import { getBoardAccess } from '@/lib/board-access'
 
 export async function DELETE(
   request: Request,
@@ -14,17 +15,14 @@ export async function DELETE(
 
   try {
     const { boardId } = await params
+    const access = await getBoardAccess(boardId, session.user.id)
 
-    const board = await prisma.board.findFirst({
-      where: {
-        id: boardId,
-        userId: session.user.id,
-      },
-      select: { id: true },
-    })
-
-    if (!board) {
+    if (!access) {
       return NextResponse.json({ error: 'Board not found' }, { status: 404 })
+    }
+
+    if (!access.isOwner) {
+      return NextResponse.json({ error: 'Only the board owner can delete this board' }, { status: 403 })
     }
 
     await prisma.board.delete({

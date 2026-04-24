@@ -47,7 +47,9 @@ export default function Card({ card, isOverlay = false }: CardProps) {
     updateCardAssignees,
     updateCardDueDate,
     selectedAssignees,
+    activeBoard,
   } = useKanbanStore()
+  const canEdit = activeBoard?.canEdit ?? false
 
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -73,7 +75,7 @@ export default function Card({ card, isOverlay = false }: CardProps) {
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card.id,
-    disabled: isEditing || isOverlay,
+    disabled: !canEdit || isEditing || isOverlay,
     data: { type: 'card', card, columnId: card.columnId },
   })
 
@@ -222,7 +224,7 @@ export default function Card({ card, isOverlay = false }: CardProps) {
           )}
         </div>
 
-        {!isEditing && !isOverlay && (
+        {!isEditing && !isOverlay && canEdit && (
           <div className={styles.cardActions} onClick={(event) => event.stopPropagation()}>
             <button className={styles.iconBtn} onClick={() => setIsEditing(true)}>
               <Pencil size={14} />

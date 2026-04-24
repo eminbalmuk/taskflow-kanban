@@ -6,7 +6,8 @@ import {
   DragOverlay,
   closestCorners,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragStartEvent,
@@ -29,6 +30,7 @@ export default function Board() {
   const { activeBoard, moveCard, moveColumn, addColumn } = useKanbanStore()
   const boardColumns = activeBoard?.columns ?? []
   const boardViewportRef = useRef<HTMLDivElement>(null)
+  const canEdit = activeBoard?.canEdit ?? false
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<'column' | 'card' | null>(null)
@@ -36,9 +38,15 @@ export default function Board() {
   const [newColumnTitle, setNewColumnTitle] = useState('')
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 6,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 180,
+        tolerance: 10,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -159,7 +167,15 @@ export default function Board() {
       : null
 
   if (!activeBoard) {
-    return <div className={styles.empty}>Baslamak icin bir pano secin.</div>
+    return (
+      <div className={styles.empty}>
+        <div className={styles.emptyCard}>
+          <span className={styles.emptyEyebrow}>Board alani</span>
+          <h2>Haydi ilk panonuzu olusturmaya baslayalim.</h2>
+          <p>"Yeni Pano" butonuyla ekibini organize etmeye hemen baslayabilirsin.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -182,7 +198,7 @@ export default function Board() {
               ))}
             </SortableContext>
 
-            {isAddingColumn ? (
+            {canEdit && isAddingColumn ? (
               <div className={styles.addColumnInputContainer}>
                 <input
                   autoFocus
@@ -213,11 +229,11 @@ export default function Board() {
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : canEdit ? (
               <button className={styles.addColumnBtn} onClick={() => setIsAddingColumn(true)}>
                 + Sutun ekle
               </button>
-            )}
+            ) : null}
           </div>
 
           {typeof document !== 'undefined' &&

@@ -8,24 +8,26 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  image     String?
-  boards    Board[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String             @id @default(cuid())
+  name              String?
+  email             String             @unique
+  password          String
+  image             String?
+  boards            Board[]
+  boardAccessMembers BoardAccessMember[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model Board {
-  id        String   @id @default(cuid())
-  title     String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  columns   Column[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String            @id @default(cuid())
+  title       String
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  columns     Column[]
+  accessGroup BoardAccessGroup?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
 model Column {
@@ -52,4 +54,31 @@ model Card {
   column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model BoardAccessGroup {
+  id        String              @id @default(cuid())
+  boardId    String              @unique
+  board      Board               @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  members    BoardAccessMember[]
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+}
+
+model BoardAccessMember {
+  id          String               @id @default(cuid())
+  groupId     String
+  userId      String
+  permission  BoardSharePermission
+  group       BoardAccessGroup     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([groupId, userId])
+}
+
+enum BoardSharePermission {
+  VIEW
+  EDIT
 }

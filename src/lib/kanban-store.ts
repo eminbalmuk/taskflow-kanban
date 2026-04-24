@@ -23,6 +23,9 @@ export type Column = {
 export type Board = {
   id: string
   title: string
+  accessRole: 'owner' | 'edit' | 'view'
+  canEdit: boolean
+  isOwner: boolean
   columns: Column[]
 }
 
@@ -32,7 +35,7 @@ type ApiCard = Omit<Card, 'assignees'> & {
 }
 
 type ApiBoard = Omit<Board, 'columns'> & {
-  columns: Array<Omit<Column, 'cards'> & { cards: ApiCard[] }>
+  columns?: Array<Omit<Column, 'cards'> & { cards: ApiCard[] }>
 }
 
 function normalizeCard(card: ApiCard): Card {
@@ -47,7 +50,7 @@ function normalizeBoard(board: ApiBoard | null): Board | null {
 
   return {
     ...board,
-    columns: board.columns.map((column) => ({
+    columns: (board.columns ?? []).map((column) => ({
       ...column,
       cards: column.cards.map(normalizeCard),
     })),
@@ -95,14 +98,17 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   selectedAssignees: [],
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setSelectedAssignees: (selectedAssignees) => set({ selectedAssignees }),
-  setBoards: (boards) => set({ boards }),
+  setBoards: (boards) => set({ boards: boards.map((board) => normalizeBoard(board as ApiBoard)!).filter(Boolean) }),
   setActiveBoard: (board) => {
     const normalizedBoard = normalizeBoard(board as ApiBoard | null)
     set({ activeBoard: normalizedBoard })
 
     if (normalizedBoard) {
       set({ selectedAssignees: extractBoardAssignees(normalizedBoard) })
+      return
     }
+
+    set({ selectedAssignees: [] })
   },
 
   fetchBoard: async (boardId) => {
@@ -118,6 +124,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateBoardTitle: async (boardId, title) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch(`/api/boards/${boardId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -175,7 +183,7 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
 
   addCard: async (columnId, title, assignees, dueDate) => {
     const board = get().activeBoard
-    if (!board) return
+    if (!board || !board.canEdit) return
 
     const column = board.columns.find((item) => item.id === columnId)
     const order = column ? column.cards.length : 0
@@ -210,6 +218,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateCardAssignees: async (cardId, assignees) => {
+    if (!get().activeBoard?.canEdit) return
+
     const normalizedAssignees = normalizeAssignees(assignees)
 
     const response = await fetch('/api/cards', {
@@ -240,6 +250,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateCardDueDate: async (cardId, dueDate) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch('/api/cards', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -265,6 +277,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   deleteCard: async (cardId) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch(`/api/cards?id=${cardId}`, { method: 'DELETE' })
     if (!response.ok) return
 
@@ -281,6 +295,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateCardColor: async (cardId, color) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch('/api/cards', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -302,6 +318,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateCardTitle: async (cardId, title) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch('/api/cards', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -323,6 +341,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   addColumn: async (boardId, title) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch('/api/columns', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -346,6 +366,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   deleteColumn: async (columnId) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch(`/api/columns?id=${columnId}`, { method: 'DELETE' })
     if (!response.ok) return
 
@@ -362,6 +384,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateColumnColor: async (columnId, color) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch('/api/columns', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -382,6 +406,8 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
   },
 
   updateColumnTitle: async (columnId, title) => {
+    if (!get().activeBoard?.canEdit) return
+
     const response = await fetch('/api/columns', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -403,7 +429,7 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
 
   moveCard: async (cardId, fromColId, toColId, newOrder) => {
     const state = get()
-    if (!state.activeBoard) return
+    if (!state.activeBoard || !state.activeBoard.canEdit) return
 
     const oldBoard = state.activeBoard
     const newColumns = oldBoard.columns.map((column) => {
@@ -470,7 +496,7 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
 
   moveColumn: async (boardId, columnId, newOrder) => {
     const state = get()
-    if (!state.activeBoard) return
+    if (!state.activeBoard || !state.activeBoard.canEdit) return
 
     const oldBoard = state.activeBoard
     const activeIndex = oldBoard.columns.findIndex((column) => column.id === columnId)

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/auth'
 import { normalizeAssignees } from '@/lib/assignees'
+import { boardEditableWhere, getBoardAccess, getCardAccess } from '@/lib/board-access'
 
 function normalizeDueDate(value: unknown) {
   if (value === undefined) return undefined
@@ -20,10 +22,41 @@ function resolveAssignees(value: unknown, legacyValue?: unknown) {
 }
 
 export async function PATCH(request: Request) {
+  const session = await auth()
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const body = await request.json()
   const { cardId, columnId, order, color, title, assignees, assignee, dueDate } = body
   const normalizedDueDate = normalizeDueDate(dueDate)
   const normalizedAssignees = resolveAssignees(assignees, assignee)
+
+  const access = await getCardAccess(cardId, session.user.id)
+  if (!access) {
+    return NextResponse.json({ error: 'Card not found' }, { status: 404 })
+  }
+
+  if (!access.canEdit) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  if (columnId !== undefined) {
+    const targetColumn = await prisma.column.findFirst({
+      where: {
+        id: columnId,
+        board: {
+          ...boardEditableWhere(session.user.id),
+        },
+      },
+      select: { id: true },
+    })
+
+    if (!targetColumn) {
+      return NextResponse.json({ error: 'Target column not found' }, { status: 404 })
+    }
+  }
 
   try {
     const updatedCard = await prisma.card.update({
@@ -45,10 +78,34 @@ export async function PATCH(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const session = await auth()
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const body = await request.json()
   const { title, columnId, order, assignees, assignee, dueDate } = body
   const normalizedDueDate = normalizeDueDate(dueDate)
   const normalizedAssignees = resolveAssignees(assignees, assignee) ?? []
+
+  const column = await prisma.column.findUnique({
+    where: { id: columnId },
+    select: { boardId: true },
+  })
+
+  if (!column) {
+    return NextResponse.json({ error: 'Column not found' }, { status: 404 })
+  }
+
+  const access = await getBoardAccess(column.boardId, session.user.id)
+  if (!access) {
+    return NextResponse.json({ error: 'Board not found' }, { status: 404 })
+  }
+
+  if (!access.canEdit) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   try {
     const newCard = await prisma.card.create({
@@ -69,11 +126,26 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const session = await auth()
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
   if (!id) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 })
+  }
+
+  const access = await getCardAccess(id, session.user.id)
+  if (!access) {
+    return NextResponse.json({ error: 'Card not found' }, { status: 404 })
+  }
+
+  if (!access.canEdit) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   try {

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
+import { presentBoard } from '@/lib/board-presenter'
+import { boardAccessWhere, currentUserMembershipSelect } from '@/lib/board-access'
 
 export async function GET() {
   const session = await auth()
@@ -10,47 +12,64 @@ export async function GET() {
   }
 
   try {
-    let boards = await prisma.board.findMany({
-      where: { userId: session.user.id },
+    const userId = session.user.id
+
+    const accessibleBoards = await prisma.board.findMany({
+      where: boardAccessWhere(userId),
       orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        title: true,
+        userId: true,
+        createdAt: true,
+        ...currentUserMembershipSelect(userId),
+      },
     })
 
-    let activeBoard = await prisma.board.findFirst({
-      where: { userId: session.user.id },
-      include: { 
-        columns: { 
-          orderBy: { order: 'asc' },
-          include: { 
-            cards: { orderBy: { order: 'asc' } } 
-          } 
-        } 
-      }
-    })
-
-    if (!activeBoard) {
-      activeBoard = await prisma.board.create({
-        data: {
-          title: 'Genel Proje',
-          userId: session.user.id,
-          columns: {
-            create: [
-              { title: 'Yapılacaklar', order: 0, color: '#f3f0ff' },
-              { title: 'Devam Edenler', order: 1, color: '#e0f2fe' },
-              { title: 'Tamamlananlar', order: 2, color: '#dcfce7' }
-            ]
-          }
-        },
-        include: { 
-          columns: { 
-            include: { cards: true } 
-          } 
+    let boards = accessibleBoards
+      .map((board) => ({
+        ...presentBoard(board, userId),
+        columns: [],
+      }))
+      .sort((left, right) => {
+        if (left.isOwner !== right.isOwner) {
+          return left.isOwner ? -1 : 1
         }
+
+        return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
       })
-      boards = [activeBoard]
+
+    if (boards.length === 0) {
+      return NextResponse.json({
+        boards: [],
+        activeBoard: null,
+      })
     }
 
-    return NextResponse.json({ boards, activeBoard })
-  } catch (error) {
+    const activeBoardId = boards[0].id
+    const activeBoard = await prisma.board.findFirst({
+      where: {
+        id: activeBoardId,
+        ...boardAccessWhere(userId),
+      },
+      include: {
+        columns: {
+          orderBy: { order: 'asc' },
+          include: {
+            cards: {
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
+        ...currentUserMembershipSelect(userId),
+      },
+    })
+
+    return NextResponse.json({
+      boards,
+      activeBoard: activeBoard ? presentBoard(activeBoard, userId) : null,
+    })
+  } catch {
     return NextResponse.json({ error: 'Setup failed' }, { status: 500 })
   }
 }

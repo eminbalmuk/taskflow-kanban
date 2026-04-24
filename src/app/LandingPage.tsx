@@ -129,6 +129,13 @@ export default function LandingPage() {
           accentClass={styles.accentMint}
           imageSrc="/img/landing3.png"
         />
+        <FeatureSection
+          title="Kanban'ını paylaş, ekip aynı pano üzerinde buluşsun"
+          description="Board'unu ekip arkadaşlarınla paylaş, herkese ihtiyacı kadar yetki ver ve aynı kanban üzerindeki güncel akışı birlikte takip edin."
+          accentClass={styles.accentPeach}
+          imageSrc="/img/landing4.png"
+          direction="right"
+        />
       </section>
 
       <motion.section

@@ -128,6 +128,17 @@
   border-radius: 999px;
 }
 
+.accessBadge {
+  margin-left: auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(243, 240, 255, 0.9);
+  color: #6a63e6;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
 .deleteBoardIconBtn {
   position: absolute;
   right: 10px;
@@ -241,6 +252,10 @@
   overflow: hidden;
 }
 
+.mobileBoardRail {
+  display: none;
+}
+
 .header {
   height: 88px;
   display: flex;
@@ -291,6 +306,33 @@
   color: #15151f;
 }
 
+.boardAccessRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.boardAccessChip {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.boardAccessEdit {
+  background: rgba(233, 248, 240, 0.92);
+  color: #17824f;
+}
+
+.boardAccessView {
+  background: rgba(243, 240, 255, 0.94);
+  color: #625ce3;
+}
+
 .editBoardBtn {
   width: 36px;
   height: 36px;
@@ -330,6 +372,31 @@
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.shareLaunchBtn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border: 1px solid rgba(212, 208, 255, 0.95);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(248, 246, 255, 0.98), rgba(241, 238, 255, 0.96));
+  color: #6a63e6;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shareLaunchBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(142, 148, 242, 0.42);
+  box-shadow: 0 18px 30px -26px rgba(106, 99, 230, 0.72);
 }
 
 .searchBar {
@@ -844,6 +911,261 @@
   line-height: 1.7;
 }
 
+.shareModal {
+  width: min(640px, calc(100% - 32px));
+  padding: 26px;
+}
+
+.shareModalHeader p {
+  margin-top: 6px;
+}
+
+.shareForm {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shareInviteRow,
+.shareInputRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 10px;
+}
+
+.shareInviteRow {
+  grid-template-columns: minmax(0, 1fr) 148px;
+}
+
+.shareInput,
+.shareSelect {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0 14px;
+  color: #232336;
+  outline: none;
+}
+
+.shareInput:focus,
+.shareSelect:focus {
+  border-color: rgba(142, 148, 242, 0.4);
+  box-shadow: 0 0 0 4px rgba(142, 148, 242, 0.12);
+}
+
+.shareSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.shareSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1f2031;
+}
+
+.shareSectionValue {
+  color: #6a63e6;
+  font-size: 0.84rem;
+}
+
+.sharePermissionGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.sharePermissionCard {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sharePermissionCard:hover {
+  transform: translateY(-1px);
+  border-color: rgba(142, 148, 242, 0.26);
+}
+
+.sharePermissionCardActive {
+  border-color: rgba(142, 148, 242, 0.52);
+  background: linear-gradient(180deg, rgba(245, 243, 255, 0.98), rgba(240, 237, 255, 0.94));
+  box-shadow: 0 20px 32px -30px rgba(106, 99, 230, 0.72);
+}
+
+.sharePermissionIcon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(243, 240, 255, 0.92);
+  color: #6a63e6;
+}
+
+.sharePermissionCopy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sharePermissionCopy strong {
+  font-size: 0.92rem;
+  color: #2b2b40;
+}
+
+.sharePermissionCopy span {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(99, 99, 128, 0.84);
+}
+
+.sharePermissionRadio {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(180, 186, 214, 0.96);
+  border-radius: 999px;
+  color: white;
+}
+
+.sharePermissionCardActive .sharePermissionRadio {
+  border-color: #8e94f2;
+  background: #8e94f2;
+}
+
+.sharePrimaryBtn,
+.shareDangerBtn {
+  min-height: 42px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sharePrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #8e94f2, #b0b5ff);
+  color: white;
+}
+
+.sharePrimaryBtn:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.shareDangerBtn {
+  padding: 0 14px;
+  background: rgba(254, 242, 242, 0.96);
+  color: #ef4444;
+}
+
+.shareError,
+.shareSuccess {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.shareError {
+  background: rgba(254, 242, 242, 0.96);
+  color: #dc2626;
+}
+
+.shareSuccess {
+  background: rgba(236, 253, 245, 0.96);
+  color: #15803d;
+}
+
+.shareList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.shareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  background: rgba(252, 251, 255, 0.92);
+}
+
+.sharePerson {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shareAvatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8e94f2, #b0b5ff);
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.shareMeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shareMeta strong {
+  font-size: 0.9rem;
+  color: #1f2031;
+}
+
+.shareMeta span {
+  font-size: 0.8rem;
+  color: rgba(109, 109, 139, 0.84);
+}
+
+.shareActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .modalActions {
   display: flex;
   gap: 12px;
@@ -879,6 +1201,7 @@
   .sidebarIntro,
   .navLabel,
   .navItem span,
+  .accessBadge,
   .sidebarMetaCard,
   .logoText,
   .userTextInfo {
@@ -907,6 +1230,113 @@
   .main {
     min-height: 100dvh;
     overflow: visible;
+  }
+
+  .mobileBoardRail {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px 0;
+  }
+
+  .mobileBoardRailHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .mobileBoardEyebrow {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(102, 101, 149, 0.7);
+  }
+
+  .mobileBoardHeading {
+    display: block;
+    margin-top: 4px;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #1f2031;
+  }
+
+  .mobileNewBoardBtn {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    border: 1px dashed rgba(142, 148, 242, 0.38);
+    border-radius: 14px;
+    background: rgba(243, 240, 255, 0.82);
+    color: #625ce3;
+    font-size: 0.84rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .mobileBoardList {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .mobileBoardList::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobileBoardChip {
+    min-width: min(240px, 72vw);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #343452;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    flex: 0 0 auto;
+    text-align: left;
+  }
+
+  .mobileBoardChipActive {
+    border-color: rgba(142, 148, 242, 0.28);
+    background: linear-gradient(180deg, rgba(247, 244, 255, 0.98), rgba(243, 240, 255, 0.9));
+    color: #5b56d2;
+    box-shadow: 0 18px 28px -26px rgba(91, 86, 210, 0.8);
+  }
+
+  .mobileBoardChipDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #8e94f2;
+    flex: 0 0 10px;
+  }
+
+  .mobileBoardChipTitle {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileBoardChipMeta {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(243, 240, 255, 0.94);
+    color: #6a63e6;
+    font-size: 0.68rem;
+    font-weight: 800;
   }
 
   .header {
@@ -941,6 +1371,14 @@
     width: 100%;
   }
 
+  .mobileBoardRail {
+    padding: 12px 12px 0;
+  }
+
+  .mobileBoardRailHeader {
+    align-items: flex-start;
+  }
+
   .boardTitleContainer {
     width: 100%;
     justify-content: space-between;
@@ -961,6 +1399,10 @@
     gap: 12px;
   }
 
+  .shareLaunchBtn {
+    order: 1;
+  }
+
   .searchBar {
     order: 3;
     width: 100%;
@@ -974,6 +1416,16 @@
     order: 2;
     margin-left: auto;
     padding-left: 14px;
+  }
+
+  .boardAccessRow {
+    gap: 8px;
+  }
+
+  .boardAccessChip {
+    min-height: 30px;
+    padding-inline: 10px;
+    font-size: 0.74rem;
   }
 
   .toolbar {
@@ -1053,11 +1505,34 @@
   .modalActions {
     flex-direction: column;
   }
+
+  .shareInputRow {
+    grid-template-columns: 1fr;
+  }
+
+  .shareInviteRow {
+    grid-template-columns: 1fr;
+  }
+
+  .shareRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shareActions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 560px) {
   .header {
     padding-inline: 12px;
+  }
+
+  .mobileBoardChip {
+    min-width: calc(100vw - 44px);
   }
 
   .workspace {
@@ -1072,6 +1547,10 @@
   .confirmModal {
     padding: 22px;
     border-radius: 22px;
+  }
+
+  .shareModal {
+    padding: 20px;
   }
 
   .workloadPanel {
