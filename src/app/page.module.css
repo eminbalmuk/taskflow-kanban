@@ -162,6 +162,11 @@
   transform: translateY(-50%) scale(1.03);
 }
 
+.leaveBoardIconBtn {
+  color: #f97316;
+  background: rgba(255, 247, 237, 0.94);
+}
+
 .newBoardBtn {
   width: 100%;
   min-height: 50px;
@@ -397,6 +402,33 @@
   transform: translateY(-1px);
   border-color: rgba(142, 148, 242, 0.42);
   box-shadow: 0 18px 30px -26px rgba(106, 99, 230, 0.72);
+}
+
+.leaveBoardBtn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border: 1px solid rgba(254, 202, 202, 0.96);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.leaveBoardBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(248, 113, 113, 0.68);
+  background: rgba(254, 242, 242, 0.98);
+  box-shadow: 0 18px 30px -26px rgba(220, 38, 38, 0.45);
 }
 
 .searchBar {
@@ -1400,6 +1432,10 @@
   }
 
   .shareLaunchBtn {
+    order: 1;
+  }
+
+  .leaveBoardBtn {
     order: 1;
   }
 

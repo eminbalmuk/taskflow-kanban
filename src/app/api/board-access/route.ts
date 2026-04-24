@@ -213,17 +213,24 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const result = await requireOwnerAccess(request)
-  if ('error' in result) return result.error
+  const session = await auth()
 
-  const { userId } = await request.json()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-  if (typeof userId !== 'string' || !userId) {
-    return NextResponse.json({ error: 'User id is required' }, { status: 400 })
+  const boardId = getBoardIdFromUrl(request)
+  if (!boardId) {
+    return NextResponse.json({ error: 'Board id is required' }, { status: 400 })
+  }
+
+  const access = await getBoardAccess(boardId, session.user.id)
+  if (!access) {
+    return NextResponse.json({ error: 'Board not found' }, { status: 404 })
   }
 
   const group = await prisma.boardAccessGroup.findUnique({
-    where: { boardId: result.boardId },
+    where: { boardId },
     select: { id: true },
   })
 
@@ -231,11 +238,31 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true })
   }
 
+  const body = await request.json().catch(() => ({}))
+  const requestedUserId = typeof body?.userId === 'string' ? body.userId : ''
+
+  if (access.isOwner) {
+    if (!requestedUserId) {
+      return NextResponse.json({ error: 'User id is required' }, { status: 400 })
+    }
+
+    await prisma.boardAccessMember.delete({
+      where: {
+        groupId_userId: {
+          groupId: group.id,
+          userId: requestedUserId,
+        },
+      },
+    })
+
+    return NextResponse.json({ success: true })
+  }
+
   await prisma.boardAccessMember.delete({
     where: {
       groupId_userId: {
         groupId: group.id,
-        userId,
+        userId: session.user.id,
       },
     },
   })

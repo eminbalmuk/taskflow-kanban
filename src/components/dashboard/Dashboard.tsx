@@ -80,11 +80,13 @@ export default function Dashboard() {
     fetchBoard,
     createBoard,
     deleteBoard,
+    leaveBoard,
   } = useKanbanStore()
 
   const [isEditingBoard, setIsEditingBoard] = useState(false)
   const [boardTitle, setBoardTitle] = useState('')
   const [boardToDelete, setBoardToDelete] = useState<BoardType | null>(null)
+  const [boardToLeave, setBoardToLeave] = useState<BoardType | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
@@ -325,6 +327,38 @@ export default function Dashboard() {
       </AnimatePresence>
 
       <AnimatePresence>
+        {boardToLeave && (
+          <div className={styles.modalOverlay}>
+            <motion.div
+              className={styles.confirmModal}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <h2>Projeden ayril</h2>
+              <p>
+                <strong>&quot;{boardToLeave.title}&quot;</strong> panosundan ayrilmak istediginize emin misiniz?
+              </p>
+              <div className={styles.modalActions}>
+                <button className={styles.modalCancelBtn} onClick={() => setBoardToLeave(null)}>
+                  Iptal
+                </button>
+                <button
+                  className={styles.modalDeleteBtn}
+                  onClick={async () => {
+                    await leaveBoard(boardToLeave.id)
+                    setBoardToLeave(null)
+                  }}
+                >
+                  Ayril
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {showShareModal && activeBoard?.isOwner && (
           <div className={styles.modalOverlay}>
             <motion.div
@@ -503,7 +537,7 @@ export default function Dashboard() {
                   </span>
                   <span className={styles.accessBadge}>{renderAccessLabel(board)}</span>
 
-                  {board.isOwner && (
+                  {board.isOwner ? (
                     <div
                       className={styles.deleteBoardIconBtn}
                       onClick={(event) => {
@@ -512,6 +546,16 @@ export default function Dashboard() {
                       }}
                     >
                       <Trash2 size={14} />
+                    </div>
+                  ) : (
+                    <div
+                      className={`${styles.deleteBoardIconBtn} ${styles.leaveBoardIconBtn}`}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        setBoardToLeave(board)
+                      }}
+                    >
+                      <LogOut size={14} />
                     </div>
                   )}
                 </button>
@@ -602,6 +646,13 @@ export default function Dashboard() {
           </div>
 
           <div className={styles.headerRight}>
+            {activeBoard && !activeBoard.isOwner ? (
+              <button className={styles.leaveBoardBtn} onClick={() => setBoardToLeave(activeBoard)}>
+                <LogOut size={18} />
+                <span>Projeden Ayril</span>
+              </button>
+            ) : null}
+
             {activeBoard?.isOwner ? (
               <button className={styles.shareLaunchBtn} onClick={() => void openShareModal()}>
                 <Share2 size={18} />

@@ -75,6 +75,7 @@ interface KanbanStore {
   fetchBoard: (boardId: string) => Promise<void>
   createBoard: (title: string) => Promise<void>
   deleteBoard: (boardId: string) => Promise<void>
+  leaveBoard: (boardId: string) => Promise<void>
   updateBoardTitle: (boardId: string, title: string) => Promise<void>
   addCard: (columnId: string, title: string, assignees?: string[], dueDate?: string | null) => Promise<void>
   deleteCard: (cardId: string) => Promise<void>
@@ -166,6 +167,23 @@ export const useKanbanStore = create<KanbanStore>((set, get) => ({
 
   deleteBoard: async (boardId) => {
     const response = await fetch(`/api/boards/${boardId}`, { method: 'DELETE' })
+    if (!response.ok) return
+
+    set((state) => ({
+      boards: state.boards.filter((board) => board.id !== boardId),
+    }))
+
+    const currentBoards = get().boards
+    if (currentBoards.length > 0) {
+      get().fetchBoard(currentBoards[0].id)
+      return
+    }
+
+    set({ activeBoard: null })
+  },
+
+  leaveBoard: async (boardId) => {
+    const response = await fetch(`/api/board-access?boardId=${boardId}`, { method: 'DELETE' })
     if (!response.ok) return
 
     set((state) => ({
