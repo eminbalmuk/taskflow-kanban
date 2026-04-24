@@ -680,7 +680,6 @@ export default function Dashboard() {
           <div className={styles.mobileBoardRailHeader}>
             <div>
               <span className={styles.mobileBoardEyebrow}>Panolarim</span>
-              <strong className={styles.mobileBoardHeading}>Mobil pano gecisi</strong>
             </div>
 
             <button className={styles.mobileNewBoardBtn} onClick={handleCreateNewBoard}>
